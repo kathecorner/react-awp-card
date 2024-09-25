@@ -2,13 +2,17 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+//let sessionHref;
+
 const WorldpayForm = () => {
   const [cardDetails, setCardDetails] = useState({
     number: '4000000000001091',
     expiryMonth: '03',
     expiryYear: '2026',
     cvv: '555',
-    holdername: 'John Doe'
+    holdername: 'John Doe',
+    uniqueid: 'shopper001',
+    //sessionHref: ''
   });
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
@@ -23,7 +27,7 @@ const WorldpayForm = () => {
 
 
   const verifiedTokens = async (e) => {
-    //e.preventDefault();
+    //e.preventDefault();    
 
 try {
     const result = await axios.post(
@@ -34,9 +38,9 @@ try {
           'Content-Type': 'application/json',
         },
       }
-    ).then(console.log("3rd API res: " + response));
+    ).then();
     
-    setResponse(result.data);
+    setResponse(result.data);    
     setError(null);
     
   } catch (err) {
@@ -89,6 +93,16 @@ try {
       ).then(cvc());
       
       setResponse(result.data);
+      //setCardDetails(sessionHref) = result.data["_links"]["sessions:session"]["href"];
+      setCardDetails(
+        [
+            ...cardDetails,
+            {sessionHref: result.data["_links"]["sessions:session"]["href"]}
+        ]
+      );
+      
+    　//cardDetails.sessionHref = result.data["_links"]["sessions:session"]["href"];
+      console.log("after the first call: " + cardDetails.sessionHref);
       setError(null);
       
     } catch (err) {
@@ -150,7 +164,16 @@ try {
             value={cardDetails.holdername}
             onChange={handleChange}
           />
-        </label>
+        </label><br />
+        <label>
+          uniqueid:
+          <input
+            type="text"
+            name="uniqueid"            
+            value={cardDetails.uniqueid}
+            onChange={handleChange}
+          />
+        </label><br />
         <button type="submit">Submit</button>
       </form>
       {response && <div>Response: {JSON.stringify(response)}</div>}
